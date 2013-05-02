@@ -36,6 +36,13 @@
     print_r("<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>");
     exit();
   }
+  
+  // This is Windows' Wi-Fi connectivity test request: http://technet.microsoft.com/en-us/library/cc766017(v=WS.10).aspx
+  if($requestedUri == "www.msftncsi.com/ncsi.txt")
+  {
+    print_r("Microsoft NCSI");
+    exit();
+  }
 ?>
 
 <!DOCTYPE html>
