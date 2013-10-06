@@ -5,10 +5,12 @@
   // Make sure you specify a path with enough capacity such as a USB drive or you're not going to go very far with this!
   $logFilePath = "";
 
+  // Grab the host and full path of the requested URI
+  $requestedHost = $_SERVER["HTTP_HOST"];
+  $requestedUri = $requestedHost.$_SERVER["REQUEST_URI"];
+  
   // Make a nice friendly URL with no www prefix (only for display purposes)
-  $host = str_replace("www.", "", $_SERVER["HTTP_HOST"]);
-  $requestedUri = $_SERVER["HTTP_HOST"];
-  $requestedUri .=  $_SERVER["REQUEST_URI"];
+  $shortHost = str_replace("www.", "", $requestedHost);
 
   // Don't log favicon requests which the browser will issue when loading the log file
   if($_SERVER["REQUEST_URI"] != "/favicon.ico")
@@ -31,7 +33,8 @@
   }
 
   // This is iOS' Wi-Fi connectivity test request: http://erratasec.blogspot.com.au/2010/09/apples-secret-wispr-request.html
-  if($requestedUri == "www.apple.com/library/test/success.html")
+  // iOS 7 added a new domain to the wispr request: https://supportforums.cisco.com/docs/DOC-36523
+  if($requestedUri == "www.apple.com/library/test/success.html" or $requestedHost == "www.appleiphonecell.com")
   {
     print_r("<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>");
     exit();
@@ -48,7 +51,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-  <title>This is not <?php print_r($host); ?>!</title>
+  <title>This is not <?php print_r($shortHost); ?>!</title>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0" name="viewport" />
   <style type="text/css">
     body
@@ -194,7 +197,7 @@
   </header>
   <content>
     <h3>
-      Where's <?php print_r($host); ?>?
+      Where's <?php print_r($shortHost); ?>?
     </h3>
     <p>
       Double check the URL in your address bar, I'll wait...
@@ -233,7 +236,7 @@
         else
         {
           print_r("In fact here are your cookie names and values for ");
-          print_r($host);
+          print_r($shortHost);
 
           // ToDo: Ignore the GA cookies, there's not much of interest there
           echo ":</p><div><ol>";
