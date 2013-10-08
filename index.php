@@ -11,6 +11,9 @@
   
   // Make a nice friendly URL with no www prefix (only for display purposes)
   $shortHost = str_replace("www.", "", $requestedHost);
+  
+  // Also grab the user agent for logging and checking if it's a captive portal request
+  $userAgent = $_SERVER["HTTP_USER_AGENT"];
 
   // Don't log favicon requests which the browser will issue when loading the log file
   if($_SERVER["REQUEST_URI"] != "/favicon.ico")
@@ -25,7 +28,7 @@
     fwrite($handle, "|");
     fwrite($handle, $_SERVER["HTTP_ACCEPT"]);
     fwrite($handle, "|");
-    fwrite($handle, $_SERVER["HTTP_USER_AGENT"]);
+    fwrite($handle, $userAgent);
 
     fwrite($handle, "\n");
 
@@ -33,8 +36,14 @@
   }
 
   // This is iOS' Wi-Fi connectivity test request: http://erratasec.blogspot.com.au/2010/09/apples-secret-wispr-request.html
-  // iOS 7 added a new domain to the wispr request: https://supportforums.cisco.com/docs/DOC-36523
-  if($requestedUri == "www.apple.com/library/test/success.html" or $requestedHost == "www.appleiphonecell.com")
+  // iOS 7 added some new domains to the wispr request: https://supportforums.cisco.com/docs/DOC-36523
+  // Seems the iOS 7 may have a heap of domains so also check for the "CaptiveNetworkSupport" header http://forum.daviddarts.com/read.php?9,8879
+  if($requestedUri == "www.apple.com/library/test/success.html"
+    or $requestedHost == "www.appleiphonecell.com"
+    or $requestedHost == "captive.apple.com"
+	or $requestedHost == "www.ibook.info"
+	or $requestedHost == "www.itools.info"
+	or strpos($userAgent, "CaptiveNetworkSupport") !== false)
   {
     print_r("<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>");
     exit();
