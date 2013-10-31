@@ -1,6 +1,6 @@
 <?php
-  // Choose a random name so people aren't aren't stumbling over your log (this IS NOT secure - it's just obfuscation)
-  $logFileName = "myrandomname.log";
+  // Include 'settings' form defines.php - copy one form provided .sample-file
+  include_once 'defines.php';
 
   // Grab the host and full path of the requested URI
   $requestedHost = $_SERVER["HTTP_HOST"];
@@ -13,10 +13,11 @@
   $userAgent = $_SERVER["HTTP_USER_AGENT"];
 
   // Don't log favicon requests which the browser will issue when loading the log file
-  // Also don't tell the requester that the log-file is not found...
-  if($_SERVER["REQUEST_URI"] != "/favicon.ico" && is_writable($logFileName))
+  // Also don't tell the requester if the log-file is not found...
+  if($_SERVER["REQUEST_URI"] != "/favicon.ico"
+      && is_writable(LOG_LOCATION))
   {
-    $handle = fopen($logFileName, 'a');
+    $handle = fopen(LOG_LOCATION, 'a');
     $logRow = array(
         date('Y-m-d H:i:s'),
         $requestedUri,
@@ -29,6 +30,7 @@
     fclose($handle);
   }
 
+// For these URIs and hosts "Success" page will be returned - not the educating one
   $blackListedUris = array(
       "www.apple.com/library/test/success.html",
   );

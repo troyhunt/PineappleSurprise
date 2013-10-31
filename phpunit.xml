@@ -15,9 +15,9 @@
         stopOnSkipped="false"
         testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader"
         timeoutForSmallTests="1"
-        timeoutForMediumTests="10"
-        timeoutForLargeTests="60"
-        strict="false"
+        timeoutForMediumTests="5"
+        timeoutForLargeTests="10"
+        strict="true"
         verbose="false">
     <testsuites>
         <testsuite name="index.php tests">
