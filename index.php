@@ -1,9 +1,6 @@
 <?php
-  // Choose a random name so people aren't aren't stumbling over your log (this IS NOT secure - it's just obfuscation)
-  $logFileName = "myrandomname.log";
-
-  // Make sure you specify a path with enough capacity such as a USB drive or you're not going to go very far with this!
-  $logFilePath = "";
+  // Include 'settings' form defines.php - copy one form provided .sample-file
+  include_once 'defines.php';
 
   // Grab the host and full path of the requested URI
   $requestedHost = $_SERVER["HTTP_HOST"];
@@ -18,32 +15,25 @@
   // Don't log favicon requests which the browser will issue when loading the log file
   if($_SERVER["REQUEST_URI"] != "/favicon.ico")
   {
-    $handle = fopen($logFileName, 'a') or die("Can't open file");
-
-    fwrite($handle, date('Y-m-d H:i:s'));
-    fwrite($handle, "|");
-    fwrite($handle, $requestedUri);
-    fwrite($handle, "|");
-    fwrite($handle, $_SERVER["REMOTE_HOST"]);
-    fwrite($handle, "|");
-    fwrite($handle, $_SERVER["HTTP_ACCEPT"]);
-    fwrite($handle, "|");
-    fwrite($handle, $userAgent);
-
-    fwrite($handle, "\n");
-
-    fclose($handle);
+      logRequest($requestedUri, $userAgent);
   }
 
-  // This is iOS' Wi-Fi connectivity test request: http://erratasec.blogspot.com.au/2010/09/apples-secret-wispr-request.html
-  // iOS 7 added some new domains to the wispr request: https://supportforums.cisco.com/docs/DOC-36523
-  // Seems the iOS 7 may have a heap of domains so also check for the "CaptiveNetworkSupport" header http://forum.daviddarts.com/read.php?9,8879
-  if($requestedUri == "www.apple.com/library/test/success.html"
-    or $requestedHost == "www.appleiphonecell.com"
-    or $requestedHost == "captive.apple.com"
-	or $requestedHost == "www.ibook.info"
-	or $requestedHost == "www.itools.info"
-	or strpos($userAgent, "CaptiveNetworkSupport") !== false)
+// For these URIs and hosts "Success" page will be returned - not the educating one
+  $blackListedUris = array(
+      "www.apple.com/library/test/success.html",
+  );
+  $blackListedHosts = array(
+      "www.appleiphonecell.com",
+      "captive.apple.com",
+      "www.ibook.info",
+      "www.itools.info",
+  );
+// This is iOS' Wi-Fi connectivity test request: http://erratasec.blogspot.com.au/2010/09/apples-secret-wispr-request.html
+// iOS 7 added some new domains to the wispr request: https://supportforums.cisco.com/docs/DOC-36523
+// Seems the iOS 7 may have a heap of domains so also check for the "CaptiveNetworkSupport" header http://forum.daviddarts.com/read.php?9,8879
+if( in_array($requestedUri, $blackListedUris)
+        or in_array($requestedHost, $blackListedHosts)
+	    or strpos($userAgent, "CaptiveNetworkSupport") !== false)
   {
     print_r("<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>");
     exit();
@@ -239,21 +229,22 @@
       <?php 
         if(empty($_COOKIE))
         {
-          echo "As it turns out, your browser didn't send any cookies with this request but it could all so easily have
-          been a different situation. ";
+          echo 'As it turns out, your browser didn\'t send any cookies with this request but it could all so easily have
+          been a different situation. ';
         }
         else
         {
-          print_r("In fact here are your cookie names and values for ");
-          print_r($shortHost);
+          echo 'In fact here are your cookie names and values for ', $shortHost;
 
           // ToDo: Ignore the GA cookies, there's not much of interest there
           echo ":</p><div><ol>";
           foreach ($_COOKIE as $name => $value)
           {
-            $name = htmlspecialchars($name);
-            $value = htmlspecialchars($value);
-            echo "<li>$name: <span>$value</span></li>";
+              echo sprintf(
+                  '<li>%s: <span>%s</span></li>',
+                  htmlspecialchars($name),
+                  htmlspecialchars($value)
+              );
           }
           echo "</ol></div><p>";
         }
@@ -288,3 +279,23 @@
   <content>
 </body>
 </html>
+<?php
+function logRequest($requestedUri, $userAgent)
+{
+    $handle = fopen(LOG_LOCATION, 'a');
+    // Skip logging if unable to write to log
+    if (!$handle)
+        return;
+
+    $logRow = array(
+        date('Y-m-d H:i:s'),
+        $requestedUri,
+        $_SERVER["REMOTE_HOST"],
+        $_SERVER["HTTP_ACCEPT"],
+        $userAgent
+    );
+    fwrite($handle, implode('|', $logRow) . "\n");
+
+    fclose($handle);
+}
+?>

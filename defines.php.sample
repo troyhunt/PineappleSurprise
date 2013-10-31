@@ -1,0 +1,3 @@
+<?php
+//Define your log location here
+define('LOG_LOCATION', '/tmp/pineappleSurprise.log');
