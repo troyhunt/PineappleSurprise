@@ -13,21 +13,9 @@
   $userAgent = $_SERVER["HTTP_USER_AGENT"];
 
   // Don't log favicon requests which the browser will issue when loading the log file
-  // Also don't tell the requester if the log-file is not found...
-  if($_SERVER["REQUEST_URI"] != "/favicon.ico"
-      && is_writable(LOG_LOCATION))
+  if($_SERVER["REQUEST_URI"] != "/favicon.ico")
   {
-    $handle = fopen(LOG_LOCATION, 'a');
-    $logRow = array(
-        date('Y-m-d H:i:s'),
-        $requestedUri,
-        $_SERVER["REMOTE_HOST"],
-        $_SERVER["HTTP_ACCEPT"],
-        $userAgent
-    );
-    fwrite($handle, implode('|', $logRow) . "\n");
-
-    fclose($handle);
+      logRequest($requestedUri, $userAgent);
   }
 
 // For these URIs and hosts "Success" page will be returned - not the educating one
@@ -291,3 +279,23 @@ if( in_array($requestedUri, $blackListedUris)
   <content>
 </body>
 </html>
+<?php
+function logRequest($requestedUri, $userAgent)
+{
+    $handle = fopen(LOG_LOCATION, 'a');
+    // Skip logging if unable to write to log
+    if (!$handle)
+        return;
+
+    $logRow = array(
+        date('Y-m-d H:i:s'),
+        $requestedUri,
+        $_SERVER["REMOTE_HOST"],
+        $_SERVER["HTTP_ACCEPT"],
+        $userAgent
+    );
+    fwrite($handle, implode('|', $logRow) . "\n");
+
+    fclose($handle);
+}
+?>
