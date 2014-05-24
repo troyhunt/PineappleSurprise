@@ -24,7 +24,7 @@
     fwrite($handle, "|");
     fwrite($handle, $requestedUri);
     fwrite($handle, "|");
-    fwrite($handle, $_SERVER["REMOTE_HOST"]);
+    fwrite($handle, $_SERVER["REMOTE_ADDR"]);
     fwrite($handle, "|");
     fwrite($handle, $_SERVER["HTTP_ACCEPT"]);
     fwrite($handle, "|");
