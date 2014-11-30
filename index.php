@@ -55,6 +55,13 @@
     print_r("Microsoft NCSI");
     exit();
   }
+  
+  // Appearing in iOS 8
+  if($requestedUri == "static.ess.apple.com/connectivity.txt")
+  {
+    print_r("AV was here!");
+    exit();
+  }
 ?>
 
 <!DOCTYPE html>
